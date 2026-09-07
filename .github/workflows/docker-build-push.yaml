@@ -28,7 +28,10 @@ jobs:
 
       - name: Extract tag name
         id: tag
-        run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        run: |
+          echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          echo "IMAGE=${BACKEND_IMAGE_NAME,,}" >> $GITHUB_OUTPUT
+
 
       - name: Build and push Backend Docker image
         uses: docker/build-push-action@v5
@@ -36,8 +39,9 @@ jobs:
           context: ./src/backend
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.tag.outputs.TAG }}
-            ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ steps.tag.outputs.IMAGE }}:${{ steps.tag.outputs.TAG }}
+            ${{ env.REGISTRY }}/${{ steps.tag.outputs.IMAGE }}:latest
+
     outputs:
       tag: ${{ steps.tag.outputs.TAG }}
       app: backend
