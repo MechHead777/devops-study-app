@@ -12,17 +12,9 @@ First, open the repo in the dev container. Everything below assumes you're insid
 
 Then install the runtimes and dependencies:
 
-```
-mise install
-uv sync
-```
-
 After that, start the API and the frontend with docker
 
-```
-```
-
-Then open `http://localhost:22111` in a browser. Enter a topic and a duration, and hit enter. The entry gets written to the CSV and appended to the page.
+Finally, open `http://localhost:22111` in a browser. Enter a topic and a duration, and hit enter. The entry gets written to the CSV and appended to the page.
 
      If the page loads but entries don't persist, it's often because the API on 22112 isn't running, so check that before assuming the CSV is at fault.
 
