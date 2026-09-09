@@ -10,9 +10,9 @@ The web frontend listens on `localhost:22111` and the backing API listens on `lo
 
 First, open the repo in the dev container. Everything below assumes you're inside it, since the toolchain is pinned there and not on your host.
 
-Then install the runtimes and dependencies:
+Then, install the runtimes and dependencies.
 
-After that, start the API and the frontend with docker
+After that, start the API and the frontend with docker.
 
 Finally, open `http://localhost:22111` in a browser. Enter a topic and a duration, and hit enter. The entry gets written to the CSV and appended to the page.
 
@@ -46,4 +46,3 @@ Because it's squashed, the pull request title becomes the only commit message on
 Deployment happens out of a separate GitOps repo rather than from here, so this repo's job ends once the image is published to GHCR. Flux picks it up from there and applies it to the cluster.
 
 Before that, changes get tested against k3d running inside the dev container using docker-in-docker.
-
