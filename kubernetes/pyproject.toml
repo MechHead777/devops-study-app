@@ -1,0 +1,12 @@
+[project]
+name = "kubernetes"
+version = "0.1.0"
+description = "kubernetes cluster in a container"
+authors = [
+  { name = "MechHead777", email = "100052842+MechHead777@users.noreply.github.com" },
+]
+requires-python = ">=3.13"
+dependencies = ["requests>=2.34.2"]
+
+[project.scripts]
+kubernetes = "kubernetes:main"
