@@ -1,0 +1,18 @@
+[project]
+name = "kubernetes"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+  { name = "MechHead777", email = "100052842+MechHead777@users.noreply.github.com" },
+]
+requires-python = ">=3.13"
+dependencies = [
+    "requests>=2.34.2",
+]
+
+[project.scripts]
+kubernetes = "kubernetes:main"
+
+[build-system]
+requires = ["uv_build>=0.12.7,<0.13.0"]
+build-backend = "uv_build"

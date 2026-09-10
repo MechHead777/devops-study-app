@@ -1,4 +1,7 @@
 [tools]
+k3d = "5.8.3"
+k9s = "0.50.4"
+kubectl = "1.33.0"
 pre-commit = "latest"
 python = "3.13.14"
 ruff = "0.11.7"
@@ -16,3 +19,16 @@ GITOPS_REPO = 'study-app-gitops'
 
 [hooks]
 enter = "bash ./scripts/setup_project"
+
+
+[tasks.k8s-setup-local]
+description = "Set up a basic Kubernetes cluster for development that builds the local images and applies them"
+run = "bash ./kubernetes/setup_cluster_local"
+
+[tasks.k8s-setup-minimal]
+description = "Set up minimal Kubernetes cluster for testing. Does not apply anything."
+run = "bash ./kubernetes/setup_cluster_minimal"
+
+[tasks.e2e-test]
+description = "Run end-to-end tests on the Kubernetes deployment"
+run = "cd  ./kubernetes && uv run e2e_test.py"
