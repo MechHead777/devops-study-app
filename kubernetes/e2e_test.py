@@ -211,60 +211,60 @@ class K8sTestEnvironment:
         logger.error("Failed to get service URLs after multiple retries")
         return False
 
-        def deploy_application(self):
-            """Deploy the application using kubectl and kustomize"""
-            logger.info("Deploying application using kustomize")
-            kustomize_path = os.path.join(self.base_dir, "manifests/dev")
+    def deploy_application(self):
+        """Deploy the application using kubectl and kustomize"""
+        logger.info("Deploying application using kustomize")
+        kustomize_path = os.path.join(self.base_dir, "manifests/dev")
 
-            self.run_command(f"kubectl apply -k {kustomize_path}")
+        self.run_command(f"kubectl apply -k {kustomize_path}")
 
-            # Wait for each deployment to finish rolling out.
-            # `kubectl wait --for=condition=Ready pods` fails immediately if the
-            # controller hasn't created any pods yet; rollout status does not.
+        # Wait for each deployment to finish rolling out.
+        # `kubectl wait --for=condition=Ready pods` fails immediately if the
+        # controller hasn't created any pods yet; rollout status does not.
+        result = self.run_command(
+            "kubectl get deployments -n study-app -o name",
+            shell=True,
+            check=False,
+            capture_output=True,
+        )
+        if result.returncode != 0:
+            logger.error("Failed to list deployments in study-app namespace")
+            return False
+
+        deployments = [
+            d for d in result.stdout.decode("utf-8").strip().split("\n") if d
+        ]
+        if not deployments:
+            logger.error("No deployments found in study-app namespace")
+            return False
+
+        for dep in deployments:
+            logger.info(f"Waiting for rollout: {dep}")
             result = self.run_command(
-                "kubectl get deployments -n study-app -o name",
-                shell=True,
+                f"kubectl rollout status {dep} -n study-app --timeout=180s",
                 check=False,
-                capture_output=True,
             )
             if result.returncode != 0:
-                logger.error("Failed to list deployments in study-app namespace")
+                logger.error(f"Rollout failed for {dep}")
+                self.dump_diagnostics()
                 return False
 
-            deployments = [
-                d for d in result.stdout.decode("utf-8").strip().split("\n") if d
-            ]
-            if not deployments:
-                logger.error("No deployments found in study-app namespace")
-                return False
+        if not self.get_service_urls():
+            logger.error("Failed to get service URLs")
+            return False
 
-            for dep in deployments:
-                logger.info(f"Waiting for rollout: {dep}")
-                result = self.run_command(
-                    f"kubectl rollout status {dep} -n study-app --timeout=180s",
-                    check=False,
-                )
-                if result.returncode != 0:
-                    logger.error(f"Rollout failed for {dep}")
-                    self.dump_diagnostics()
-                    return False
+        return True
 
-            if not self.get_service_urls():
-                logger.error("Failed to get service URLs")
-                return False
-
-            return True
-
-        def dump_diagnostics(self):
-            """Print pod state and recent events on failure"""
-            logger.info("Dumping diagnostics for namespace study-app")
-            self.run_command("kubectl get pods -n study-app -o wide", check=False)
-            self.run_command("kubectl describe pods -n study-app", check=False)
-            self.run_command(
-                "kubectl get events -n study-app --sort-by=.lastTimestamp",
-                shell=True,
-                check=False,
-            )
+    def dump_diagnostics(self):
+        """Print pod state and recent events on failure"""
+        logger.info("Dumping diagnostics for namespace study-app")
+        self.run_command("kubectl get pods -n study-app -o wide", check=False)
+        self.run_command("kubectl describe pods -n study-app", check=False)
+        self.run_command(
+            "kubectl get events -n study-app --sort-by=.lastTimestamp",
+            shell=True,
+            check=False,
+        )
 
     def wait_for_service_availability(self, url, max_retries=20, delay=5):
         """Check if a service is available by making HTTP requests"""
